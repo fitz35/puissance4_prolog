@@ -1,5 +1,8 @@
+:- use_module(library(pce)).
 :- consult(heuristique).
+:- consult("IHM/window").
 
+:- pce_global(@window, new(window("Puissance 4"))).
 % DE :
 % Damien Carreau
 % Enzo Boscher
@@ -22,7 +25,7 @@
 % utile pour faire des stats car l'on ne veut pas afficher tous les
 % effectués. Res retour le joueur gagnant
 % EXEMPLE : lancerJeu(1,2,1,R).
-lancerJeu(N1, N2, Etat, Res) :- G=[[0,0,0,0,0,0], [0,0,0,0,0,0], [0,0,0,0,0,0],[0,0,0,0,0,0], [0,0,0,0,0,0], [0,0,0,0,0,0], [0,0,0,0,0,0]],affiche(G,[],Etat), heuristique(G, 1, [N1, N2], Etat,Res).
+lancerJeu(N1, N2, Etat, Res) :- G=[[0,0,0,0,0,0], [0,0,0,0,0,0], [0,0,0,0,0,0],[0,0,0,0,0,0], [0,0,0,0,0,0], [0,0,0,0,0,0], [0,0,0,0,0,0]], affiche(G,[],Etat), heuristique(G, 1, [N1, N2], Etat,Res).
 
 
 % stats permet de lancer 50 répétitions de jeu entre deux heuristique N1
