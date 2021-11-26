@@ -16,6 +16,7 @@
 :- consult(heuristiques/defensive).
 :- consult(heuristiques/anticipation).
 :- consult(heuristiques/minMaxStatique).
+:- consult(heuristiques/minMaxHeuristique).
 :- consult(heuristiques/minMax).
 
 
@@ -70,10 +71,10 @@ heuristique(G,Joueur,[N1|N2],Etat,Res) :- nth1(Joueur,[N1|N2],NIV), NIV = 6, min
     joueurOppose(Joueur, JoueurOp),
     heuristique(G1,JoueurOp, [N1|N2],Etat,Res).
 
-% Si un joueur a une heuristique Random, je l'appelle pour ce joueur
-% Ou si une heuristique supérieur n'a pas réussi, je l'appelle
-heuristique(G,Joueur,[N1|N2],Etat,Res) :- nth1(Joueur,[N1|N2],NIV), NIV > 0, heuristiqueRandom(Joueur, G, G1),
-    ecrit(Joueur,Etat), ecrit(" joue Random",Etat), retour(1,Etat),
+
+% Appel de l'heuristique MinMaxDynamique
+heuristique(G,Joueur,[N1|N2],Etat,Res) :- nth1(Joueur,[N1|N2],NIV), NIV = 7, minMaxDynamique(G,Joueur,G1),
+    ecrit(Joueur,Etat), ecrit(" joue MinMaxDynamique",Etat), retour(1,Etat),
     affiche(G1,[],Etat),
     joueurOppose(Joueur, JoueurOp),
     heuristique(G1,JoueurOp, [N1|N2],Etat,Res).
@@ -81,6 +82,13 @@ heuristique(G,Joueur,[N1|N2],Etat,Res) :- nth1(Joueur,[N1|N2],NIV), NIV > 0, heu
 
 
 
+% Si un joueur a une heuristique Random, je l'appelle pour ce joueur
+% Ou si une heuristique supérieur n'a pas réussi, je l'appelle
+heuristique(G,Joueur,[N1|N2],Etat,Res) :- nth1(Joueur,[N1|N2],NIV), NIV > 0, heuristiqueRandom(Joueur, G, G1),
+    ecrit(Joueur,Etat), ecrit(" joue Random",Etat), retour(1,Etat),
+    affiche(G1,[],Etat),
+    joueurOppose(Joueur, JoueurOp),
+    heuristique(G1,JoueurOp, [N1|N2],Etat,Res).
 
 
 
