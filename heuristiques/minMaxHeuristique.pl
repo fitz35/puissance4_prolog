@@ -18,9 +18,9 @@ minMaxDynamique(Grille,J,G1) :-  mettreAJourTableau(Grille,J),  tableau(X,J), tr
 tailleList([_|Q], T) :- tailleList(Q, T2), T is T2 + 1.
 
 
-alignement2JetonsColonne(_,_,2,_).
+alignement2JetonsColonne(_,_,2).%2jetons alignés => stop 
 
-alignement2JetonsColonne([X|Rest],J,_):-
+alignement2JetonsColonne([X|Rest],J,_):- 
     X \== J,
     alignement2JetonsColonne(Rest,J,0).
 
@@ -29,13 +29,14 @@ alignement2JetonsColonne([X|Rest],J,Cpt):-
     Cpt1 is Cpt+1,
     alignement2JetonsColonne(Rest,J,Cpt1).
 
-indiceColonnesA2Jetons(_,7,_).
+indiceColonnesA2Jetons(_,8,_).
 indiceColonnesA2Jetons(Grille,IndiceCol,J):-
+    nth1(IndiceCol, Grille, Y),
     (alignement2JetonsColonne(Y,J,0),
-    write(Y),
+    write(" found "),%appel un changement de score sur la colonne.
     I1 is IndiceCol+1,
     indiceColonnesA2Jetons(Grille,I1,J));
-    (I1 is IndiceCol+1,
+    (I1 is IndiceCol+1, write(" next "),
     indiceColonnesA2Jetons(Grille,I1,J)).
 
 mettreAJourTableau(Grille,J) :-
@@ -57,6 +58,16 @@ mettreAJourTableau(Grille,J) :-
 
 trouveEnemie(Grille,X,Y,J) :- getCase(Grille,Y,X,C), (C == J ; C == 0). %Case nous appartenant ou vide 
 trouveEnemie(Grille,X,Y,J) :- getCase(Grille,Y,X,C), joueurOppose(J,Jo),  C == Jo, augmenterLesCasesAutours(J,X,Y).
+
+
+
+augmenterLesCasesColonne(_,_,7).
+
+augmenterLesCasesColonne(J,Y, Cpt) :- tableau(T,J),
+                            augmentCase(Cpt,Y,3,T,NewTab), 
+                            Cpt1 is Cpt+1,
+                            asserta(tableau(NewTab,J)),
+                            augmenterLesCasesColonne(J,Y, Cpt1).
 
 augmenterLesCasesAutours(J,X,Y) :- tableau(T,J),
                             XP is X+1 , XM is X-1 , YP is Y+1, YM is Y-1,
