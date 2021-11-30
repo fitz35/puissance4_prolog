@@ -32,3 +32,4 @@ stats(N1,N2,50,J1,J2,Nul) :- write(N1), write(" : "), write(J1), nl, write(N2), 
 stats(N1,N2,Cpt,J1,J2,Nul) :- lancerJeu(N1,N2,0,X), Cpt1 is Cpt+1, ((X == 1, J1b is J1+1, stats(N1,N2,Cpt1,J1b,J2,Nul));(X == 2, J2b is J2+1, stats(N1,N2,Cpt1,J1,J2b,Nul));(X == 0, Nulb is Nul+1, stats(N1,N2,Cpt1,J1,J2,Nulb))).
 
 
+
