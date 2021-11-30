@@ -4,41 +4,94 @@
 %                 sinon si l'adversaire à un coup gagnant, bloque le,
 %                 sinon, en s'appuyant sur un tableau qui indique un score pour chaque coup, joue le coup avec le meilleur score
 
-:- dynamic tableau/1.
-tableau([[3,4,5,5,4,3],[4,6,8,8,6,4],[5,8,11,11,8,5],[7,10,13,13,10,7],[5,8,11,11,8,5],[4,6,8,8,6,4],[3,4,5,5,4,3]]).
+:- dynamic tableau/2.
+tableau([[3,4,5,5,4,3],[4,6,8,8,6,4],[5,8,11,11,8,5],[7,10,13,13,10,7],[5,8,11,11,8,5],[4,6,8,8,6,4],[3,4,5,5,4,3]],1).
+tableau([[3,4,5,5,4,3],[4,6,8,8,6,4],[5,8,11,11,8,5],[7,10,13,13,10,7],[5,8,11,11,8,5],[4,6,8,8,6,4],[3,4,5,5,4,3]],2).
 
+r :- retractall(tableau(_,_)) , 
+        asserta(tableau([[3,4,5,5,4,3],[4,6,8,8,6,4],[5,8,11,11,8,5],[7,10,13,13,10,7],[5,8,11,11,8,5],[4,6,8,8,6,4],[3,4,5,5,4,3]],1)),
+        asserta(tableau([[3,4,5,5,4,3],[4,6,8,8,6,4],[5,8,11,11,8,5],[7,10,13,13,10,7],[5,8,11,11,8,5],[4,6,8,8,6,4],[3,4,5,5,4,3]],2)).
 
 % Heuristique minMax // fait jouer le coup trouvé 
-minMaxDynamique(Grille,J,G1) :- tableau(X), trouveCoupMinMax(Grille, X, NumColonneAJouer), jouerMove(J,Grille,NumColonneAJouer,G1).
+minMaxDynamique(Grille,J,G1) :-  mettreAJourTableau(Grille,J),  tableau(X,J), trouveCoupMinMax(Grille, X, NumColonneAJouer), jouerMove(J,Grille,NumColonneAJouer,G1).
 
 
 tailleList([_|Q], T) :- tailleList(Q, T2), T is T2 + 1.
 
 
-mettreAJourTableau(Grille) :-      
-    length(Grille, TailleX),% recupere la taille X
+mettreAJourTableau(Grille,J) :-
+    length(Grille, TailleY),% recupere la taille X
+    nth1(1, Grille, Colonne), % recuperation de la colonne
+    length(Colonne, TailleX), % recuperation de la taille Y
     forall(
-        between(1, TailleX, X), % pour chaque indice entre 1 et Taille X
+        between(1, TailleY, Y), % pour chaque indice entre 1 et Taille X
         ( 
-            nth1(X, Grille, Colonne), % recuperation de la colonne
-            length(Colonne, TailleY), % recuperation de la taille Y
+            
             forall(
-                between(1, TailleY, Y), % pour chaque indice entre 1 et Taille Y
+                between(1, TailleX, X), % pour chaque indice entre 1 et Taille Y
                 ( 
-                    ajoutAutourEnemie(Grille,X,Y)
+                    trouveEnemie(Grille,X,Y,J)
                 )
             )
         )
     ).
 
+trouveEnemie(Grille,X,Y,J) :- getCase(Grille,Y,X,C), (C == J ; C == 0). %Case nous appartenant ou vide 
+trouveEnemie(Grille,X,Y,J) :- getCase(Grille,Y,X,C), joueurOppose(J,Jo),  C == Jo, augmenterLesCasesAutours(J,X,Y).
 
-ajoutAutourEnemie(Grille,X,Y) :- getCase(Grille,X,Y,C), C == 1, write("Un enemie en "), write(X), write(Y).
+augmenterLesCasesAutours(J,X,Y) :- tableau(T,J),
+                            XP is X+1 , XM is X-1 , YP is Y+1, YM is Y-1,
+                            XPP is X+2 , XMM is X-2, YPP is Y+2, YMM is Y-2,
+                            augmentCase(XP,Y,1,T,A), %case au dessus 
+                            augmentCase(XM,Y,1, A,B), %case en dessous 
+                            augmentCase(X,YP,1,B,C), %case sur les coté
+                            augmentCase(X,YM,1,C,D), %case sur les coté
+                            augmentCase(XP,YP,1,D,E), %diagonales
+                            augmentCase(XP,YM,1,E,F), %diagonales
+                            augmentCase(XM,YP,1,F,G), %diagonales
+                            augmentCase(XM,YM,1,G,H), %diagonales
+
+                            augmentCase(XPP,YMM,0.5,H,H1), %1
+                            augmentCase(XPP,YM,0.5,H1,H2), %2
+                            augmentCase(XPP,Y,0.5,H2,H3), %3
+                            augmentCase(XPP,YP,0.5,H3,H4), %4
+                            augmentCase(XPP,YPP,0.5,H4,H5), %5
+                            augmentCase(XP,YPP,0.5,H5,H6), %6
+                            augmentCase(X,YPP,0.5,H6,H7), %7
+                            augmentCase(XM,YPP,0.5,H7,H8), %8
+                            augmentCase(XMM,YPP,0.5,H8,H9), %9
+                            augmentCase(XMM,YP,0.5,H9,H10), %10
+                            augmentCase(XMM,Y,0.5,H10,H11), %11
+                            augmentCase(XMM,YM,0.5,H11,H12), %12
+                            augmentCase(XMM,YMM,0.5,H12,H13), %13
+                            augmentCase(XM,YMM,0.5,H13,H14), %14
+                            augmentCase(X,YMM,0.5,H14,H15), %15
+                            augmentCase(XP,YMM,0.5,H15,H16), %16
+
+                            asserta(tableau(H16,J)).
+
+
+
+%augmente de V la valeur de la case donnée ==> cas ou X<1 on joue sur la premiere ligne 
+augmentCase(X,Y,_,T,RetT) :- (X > 6 ; X < 1 ; Y < 1 ; Y > 7), RetT = T. 
+
+%augmente de V la valeur de la case donnée 
+augmentCase(X,Y,V,T,NewT) :- getCase(T,Y,X,C),
+                    C1 is C+V, nth1(Y,T,Colonne), replace(Colonne,X,C1,NewColonne),
+                    replace(T,Y,NewColonne,NewT).
+
+
+%pas a nous -> remplace le ieme element d'une liste par la valeur X
+replace([_|T], 1, X, [X|T]).
+replace([H|T], I, X, [H|R]):- I > -1, NI is I-1, replace(T, NI, X, R), !.
+replace(L, _, _, L).
+
 
 %[[1,2,1,0,0,0],[2,1,0,0,0,0],[1,2,1,0,0,0],[1,2,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[2,1,1,1,2,1]]
 
 
 %Retourne la colonne ou il faut jouer 
-trouveCoupMinMax(Grille, Tableau, NumColonneAJouer) :- trouverLesPoidsJouables(Grille, Tableau, [], 1,FinalVecteur), write(FinalVecteur), 
+trouveCoupMinMax(Grille, Tableau, NumColonneAJouer) :- trouverLesPoidsJouables(Grille, Tableau, [], 1,FinalVecteur), 
                                                       trouverLePoidsMax(FinalVecteur,NumColonneAJouer).
 
 %retourne la colonne ou le poids de la case jouable est maximum
@@ -82,5 +135,13 @@ colonnePleine(C) :- not(member(0, C)).
 dernier2([Y|L],Z,N) :- Y \== 0 , Z1 is Z+1, dernier2(L,Z1,N).
 dernier2(_,Z,N) :- N is Z.
 
+
+%------------Doublons------------------
+
+
 % R�cup�re la case (Colonne,Ligne) de la Grille
-%getCase(Grille,Colonne,Ligne,Retour) :- nth1(Colonne,Grille,C), nth1(Ligne,C,Retour).
+getCase(Grille,Colonne,Ligne,Retour) :- nth1(Colonne,Grille,C), nth1(Ligne,C,Retour).
+
+%renvoi le joueur oppose
+joueurOppose(1,2).
+joueurOppose(2,1).
