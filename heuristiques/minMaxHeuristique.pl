@@ -16,28 +16,76 @@ minMaxDynamique(Grille,J,G1) :-  mettreAJourTableau(Grille,J),  tableau(X,J), tr
 
 
 tailleList([_|Q], T) :- tailleList(Q, T2), T is T2 + 1.
+%[[1,2,1,0,0,0],[2,1,0,0,0,0],[1,2,1,0,0,0],[1,2,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[2,1,1,1,2,1]]
+
+obtenirLigne(_,8,_,Ligne,Res):- Res = Ligne.
+obtenirLigne(Grille,IndexColonne,IndexLigne,Ligne,Res):-
+    nth1(IndexColonne,Grille,Colonne),
+    nth1(IndexLigne,Colonne,Elt),
+    IndexColonne1 is IndexColonne+1,
+    append(Ligne,[Elt],Ligne1),
+    obtenirLigne(Grille,IndexColonne1,IndexLigne,Ligne1,Res).
 
 
+% Trouve les colonnes ayant 2 jetons, du joueur adverse à J, alignés et incrémente la ligne
+% du tableau de 3
+indiceLignesA2Jetons(_,7,_). % 7 -> fin des lignes
+indiceLignesA2Jetons(Grille,IndiceLigne,J):-
+    obtenirLigne(Grille,1,IndiceLigne,[],Ligne),
+    (joueurOppose(J,Jo),
+    alignement2JetonsColonne(Ligne,Jo,0), % On regarde si 2 jetons adverses sont alignés
+    augmenterLesCasesLigne(J,IndiceLigne,1),%appel un changement de score sur la colonne.
+    I1 is IndiceLigne+1, %On incrémente l'indice des lignes
+    indiceLignesA2Jetons(Grille,I1,J));
+
+    (I1 is IndiceLigne+1,
+    indiceLignesA2Jetons(Grille,I1,J)).
+
+augmenterLesCasesLigne(_,_,8).
+augmenterLesCasesLigne(J,IndiceLigne, Cpt) :- 
+    tableau(T,J),
+    augmentCase(IndiceLigne,Cpt,3,T,NewTab), 
+    Cpt1 is Cpt+1,
+    asserta(tableau(NewTab,J)),
+    augmenterLesCasesLigne(J,IndiceLigne, Cpt1).
+
+
+% Trouve si 2 jetons max de la même personne aligné sur une colonne
 alignement2JetonsColonne(_,_,2).%2jetons alignés => stop 
 
 alignement2JetonsColonne([X|Rest],J,_):- 
-    X \== J,
-    alignement2JetonsColonne(Rest,J,0).
+    X \== J,% Jeton au début de la colonne
+    alignement2JetonsColonne(Rest,J,0). % Remise à 0 du compteur, on enlève la tête
 
 alignement2JetonsColonne([X|Rest],J,Cpt):-
-    X == J,
-    Cpt1 is Cpt+1,
-    alignement2JetonsColonne(Rest,J,Cpt1).
+    X == J, % Jeton au début de la colonne
+    Cpt1 is Cpt+1, %Incrément du compteur
+    alignement2JetonsColonne(Rest,J,Cpt1). %On enlève la tête, compteur mis à jour
 
-indiceColonnesA2Jetons(_,8,_).
+
+% Trouve les colonnes ayant 2 jetons, du joueur adverse à J, alignés et incrémente la colonne
+% du tableau de 3
+indiceColonnesA2Jetons(_,8,_). % IndiceCol = 8 -> fin de la colonne
 indiceColonnesA2Jetons(Grille,IndiceCol,J):-
-    nth1(IndiceCol, Grille, Y),
-    (alignement2JetonsColonne(Y,J,0),
-    write(" found "),%appel un changement de score sur la colonne.
-    I1 is IndiceCol+1,
+    nth1(IndiceCol, Grille, Y), % On récupère la colonne Y à l'indice indiceCol de la grille
+    (joueurOppose(J,Jo),
+    alignement2JetonsColonne(Y,Jo,0), % On regarde si 2 jetons adverses sont alignés
+    augmenterLesCasesColonne(J,IndiceCol,1),%appel un changement de score sur la colonne.
+    I1 is IndiceCol+1, %On incrémente l'indice des colonnes
     indiceColonnesA2Jetons(Grille,I1,J));
-    (I1 is IndiceCol+1, write(" next "),
+
+    (I1 is IndiceCol+1,
     indiceColonnesA2Jetons(Grille,I1,J)).
+
+
+augmenterLesCasesColonne(_,_,7).
+augmenterLesCasesColonne(J,IndiceCol, Cpt) :- tableau(T,J),
+                            augmentCase(Cpt,IndiceCol,3,T,NewTab), 
+                            Cpt1 is Cpt+1,
+                            asserta(tableau(NewTab,J)),
+                            augmenterLesCasesColonne(J,IndiceCol, Cpt1).
+
+
 
 mettreAJourTableau(Grille,J) :-
     length(Grille, TailleY),% recupere la taille X
@@ -54,20 +102,15 @@ mettreAJourTableau(Grille,J) :-
                 )
             )
         )
-    ).
+    ),
+    indiceColonnesA2Jetons(Grille,1,J), % augmente les colonnes ayant 2 jetons consécutifs
+    indiceLignesA2Jetons(Grille,1,J). % augmente les lignes ayant 2 jetons consécutifs
+
+
 
 trouveEnemie(Grille,X,Y,J) :- getCase(Grille,Y,X,C), (C == J ; C == 0). %Case nous appartenant ou vide 
 trouveEnemie(Grille,X,Y,J) :- getCase(Grille,Y,X,C), joueurOppose(J,Jo),  C == Jo, augmenterLesCasesAutours(J,X,Y).
 
-
-
-augmenterLesCasesColonne(_,_,7).
-
-augmenterLesCasesColonne(J,Y, Cpt) :- tableau(T,J),
-                            augmentCase(Cpt,Y,3,T,NewTab), 
-                            Cpt1 is Cpt+1,
-                            asserta(tableau(NewTab,J)),
-                            augmenterLesCasesColonne(J,Y, Cpt1).
 
 augmenterLesCasesAutours(J,X,Y) :- tableau(T,J),
                             XP is X+1 , XM is X-1 , YP is Y+1, YM is Y-1,
