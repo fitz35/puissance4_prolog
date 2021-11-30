@@ -17,6 +17,7 @@
 :- consult(heuristiques/anticipation).
 :- consult(heuristiques/minMaxStatique).
 :- consult(heuristiques/minMax).
+:- consult(heuristiques/minMaxStatiqueProfondeur).
 
 
 % ==================================================
@@ -66,6 +67,14 @@ heuristique(G,Joueur,[N1|N2],Etat,Res) :- nth1(Joueur,[N1|N2],NIV), NIV = 4, heu
 % Appel de l'heuristique MinMax
 heuristique(G,Joueur,[N1|N2],Etat,Res) :- nth1(Joueur,[N1|N2],NIV), NIV = 6, minMax(G,Joueur,G1),
     ecrit(Joueur,Etat), ecrit(" joue MinMaxNew",Etat), retour(1,Etat),
+    affiche(G1,[],Etat),
+    joueurOppose(Joueur, JoueurOp),
+    heuristique(G1,JoueurOp, [N1|N2],Etat,Res).
+
+% Appel de l'heuristique MinMax avec fonction d'evalutation statique, profondeur implemente
+% Developpe par H4124
+heuristique(G,Joueur,[N1|N2],Etat,Res) :- nth1(Joueur,[N1|N2],NIV), NIV = 7, minmaxStatiqueProf(Joueur, G, G1),
+    ecrit(Joueur,Etat), ecrit(" joue MinMaxStatique avec profondeur",Etat), retour(1,Etat),
     affiche(G1,[],Etat),
     joueurOppose(Joueur, JoueurOp),
     heuristique(G1,JoueurOp, [N1|N2],Etat,Res).
