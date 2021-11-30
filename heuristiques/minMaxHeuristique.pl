@@ -1,5 +1,4 @@
-
-% Heuristique 6 : min-max,
+% Heuristique 7 : min-max,
 %                 s'il existe joue coup gagnant,
 %                 sinon si l'adversaire à un coup gagnant, bloque le,
 %                 sinon, en s'appuyant sur un tableau qui indique un score pour chaque coup, joue le coup avec le meilleur score
@@ -18,6 +17,26 @@ minMaxDynamique(Grille,J,G1) :-  mettreAJourTableau(Grille,J),  tableau(X,J), tr
 
 tailleList([_|Q], T) :- tailleList(Q, T2), T is T2 + 1.
 
+
+alignement2JetonsColonne(_,_,2,_).
+
+alignement2JetonsColonne([X|Rest],J,_):-
+    X \== J,
+    alignement2JetonsColonne(Rest,J,0).
+
+alignement2JetonsColonne([X|Rest],J,Cpt):-
+    X == J,
+    Cpt1 is Cpt+1,
+    alignement2JetonsColonne(Rest,J,Cpt1).
+
+indiceColonnesA2Jetons(_,7,_).
+indiceColonnesA2Jetons(Grille,IndiceCol,J):-
+    (alignement2JetonsColonne(Y,J,0),
+    write(Y),
+    I1 is IndiceCol+1,
+    indiceColonnesA2Jetons(Grille,I1,J));
+    (I1 is IndiceCol+1,
+    indiceColonnesA2Jetons(Grille,I1,J)).
 
 mettreAJourTableau(Grille,J) :-
     length(Grille, TailleY),% recupere la taille X
