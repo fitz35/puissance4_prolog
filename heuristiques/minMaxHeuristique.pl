@@ -14,8 +14,6 @@ r :- retractall(tableau(_,_)) ,
 % Heuristique minMax // fait jouer le coup trouvé 
 minMaxDynamique(Grille,J,G1) :-  mettreAJourTableau(Grille,J),  tableau(X,J), trouveCoupMinMax(Grille, X, NumColonneAJouer), jouerMove(J,Grille,NumColonneAJouer,G1).
 
-
-tailleList([_|Q], T) :- tailleList(Q, T2), T is T2 + 1.
 %[[1,2,1,0,0,0],[2,1,0,0,0,0],[1,2,1,0,0,0],[1,2,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[2,1,1,1,2,1]]
 
 obtenirLigne(_,8,_,Ligne,Res):- Res = Ligne.
@@ -213,8 +211,8 @@ dernier2(_,Z,N) :- N is Z.
 
 
 % R�cup�re la case (Colonne,Ligne) de la Grille
-getCase(Grille,Colonne,Ligne,Retour) :- nth1(Colonne,Grille,C), nth1(Ligne,C,Retour).
+%getCase(Grille,Colonne,Ligne,Retour) :- nth1(Colonne,Grille,C), nth1(Ligne,C,Retour).
 
 %renvoi le joueur oppose
-joueurOppose(1,2).
-joueurOppose(2,1).
+%joueurOppose(1,2).
+%joueurOppose(2,1).

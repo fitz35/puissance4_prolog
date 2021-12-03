@@ -1,4 +1,8 @@
+:- use_module(library(pce)).
 :- consult(heuristique).
+:- consult("IHM/window").
+
+:- pce_global(@window, new(window("Puissance 4"))).
 
 % DE :
 % Damien Carreau

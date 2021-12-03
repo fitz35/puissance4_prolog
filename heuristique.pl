@@ -7,9 +7,11 @@
 % Antoine Mandin
 
 % Chargement des fichiers qui seront utilisés dans ce fichier
+:- consult(utils).
 :- consult(analyseGagnant).
 :- consult(gereTableau).
 :- consult(affichage).
+
 :- consult(heuristiques/joueur).
 :- consult(heuristiques/random).
 :- consult(heuristiques/offensive).
@@ -35,7 +37,7 @@ heuristique(G,1,_,Etat,2) :- gagner(2,G), afficherGagnant(2,Etat), retour(1,Etat
 heuristique(G,_,_,Etat,0) :- finis(G,Etat).
 
 % Si un joueur a une heuristique 0, j'appelle cette heuristique pour ce joueur
-heuristique(G,Joueur,[N1|N2],Etat,Res) :- nth1(Joueur,[N1|N2],NIV), NIV = 0, jouerJoueur(G, Joueur, N1, N2,Etat,Res).
+heuristique(G,Joueur,[N1|N2],Etat,Res) :- nth1(Joueur,[N1|N2],NIV), NIV = 0, window(G, Etat),  jouerJoueur(G, Joueur, N1, N2,Etat,Res).
 
 % Si un joueur a une heuristique supérieur à 1, j'appelle la stratégie 1
 heuristique(G,Joueur,[N1|N2], Etat,Joueur) :- nth1(Joueur,[N1|N2],NIV), NIV > 1, movePourGagner(Joueur, G, G1),
