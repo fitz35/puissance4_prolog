@@ -24,8 +24,9 @@ heuristiqueMMSProf(G,L,_,G1,JoueurJouant, _) :- max_liste(L,X),nth1(I,L,X),jouer
 ceCoupNousFaitPerdre(JoueurJouant, Grille, Coup):- joueurOppose(JoueurJouant,JoueurOppose),jouerMove(JoueurJouant, Grille, Coup, G2),testMovePourGagner(JoueurOppose, G2,_).
 
 %Pour chaque coup, nous invoquons la procedure miniMax et nous mettons la valeur dans la liste
-invoquerMiniMax(TableauJeu, MMS, CoupJoue, Profondeur, JoueurJouant, ScoreList, NewScoreList) :- jouerMove(JoueurJouant, TableauJeu, CoupJoue, PrevisionTableauJeu), 
-                                                                                                 fonctionMiniMax(PrevisionTableauJeu, MMS, 0, Profondeur, JoueurJouant, JoueurJouant, NewScore), 
+invoquerMiniMax(TableauJeu, MMS, CoupJoue, Profondeur, JoueurJouant, ScoreList, NewScoreList) :- jouerMove(JoueurJouant, TableauJeu, CoupJoue, PrevisionTableauJeu),
+                                                                                                 joueurOppose(JoueurJouant, AutreJoueur),
+                                                                                                 fonctionMiniMax(PrevisionTableauJeu, MMS, 0, Profondeur, AutreJoueur, JoueurJouant, NewScore), 
                                                                                                  ajouterEnFin(NewScore, ScoreList, NewScoreList).
 
 % MMS est la grille d'evaluation, J le numero de la colonne jouee, G la grille du jeu,
@@ -41,7 +42,15 @@ fonctionMiniMax(TableauJeu, MMS,CoupJoue, 0         , _       , _        , BestN
                                                                                             write(" coupure Profondeur, leaf score =  "), write(NodeScore), write("\n").
 fonctionMiniMax(TableauJeu, MMS,CoupJoue, Profondeur, _       , _        , BestNodeValue):- NewCoupJoue is CoupJoue + 1, Profondeur\=0, nth1(NewCoupJoue, TableauJeu, Colonne), compter(Colonne,1), scoreCoup(TableauJeu,MMS,CoupJoue,NodeScore), BestNodeValue is NodeScore,  
                                                                                             write(" coupure No Child leaf score = "), write(NodeScore), write("\n").
-fonctionMiniMax(TableauJeu, MMS,6       , _         , _       , _        , BestNodeValue):- scoreCoup(TableauJeu,MMS,7,NodeScore), BestNodeValue is NodeScore, %A changer, faut regarder les enfats
+fonctionMiniMax(TableauJeu, MMS,6       , _         , _       , _        , BestNodeValue):- Profondeur>0,
+                                                                                            NewCoupJoue is CoupJoue + 1, CoupJoue < 8, % Effet de bord possible, on commence a 1 ou 2?, Changer newCoup joue < 8?
+                                                                                            joueurOppose(JoueurMAX, AutreJoueur),
+                                                                                            NewProfondeur is Profondeur - 1,
+                                                                                            jouerMove(JoueurMAX, TableauJeu, NewCoupJoue, PrevisionTableauJeu),
+                                                                                            write(" Profondeur : "), write(NewProfondeur), write(" Coup Joue : "), write(NewCoupJoue), write("\n"),
+                                                                                            fonctionMiniMax(PrevisionTableauJeu, MMS, 0, NewProfondeur, AutreJoueur, JoueurMAX, ThisNodeValue), %Recursion en  profondeur
+                                                                                            BestNodeValue is ThisNodeValue,
+                                                                                            write(" Best max node value for  node prof = "), write(Profondeur), write("   coup = "), write(CoupJoue), write(" is score = "), write(BestNodeValue), write("\n").
                                                                                             write(" coupure no right node \n").
 
 %PseudoCode : if maximizingPlayer then
@@ -65,14 +74,14 @@ fonctionMiniMax(TableauJeu, MMS, CoupJoue, Profondeur, JoueurMAX   , JoueurMAX, 
 %             for each child of node do
 %                   value := min(value, minimax(child, depth − 1, TRUE))
 %                   return value
-fonctionMiniMax(TableauJeu, MMS ,CoupJoue, Profondeur, JoueurJouant, JoueurMAX, BestNodeValue):- Profondeur>0, JoueurJouant =\= JoueurMAX, write(" min"),
+fonctionMiniMax(TableauJeu, MMS ,CoupJoue, Profondeur, JoueurJouant, JoueurMAX, BestNodeValue):- Profondeur>0, JoueurJouant =\= JoueurMAX,
                                                                                         NewCoupJoue is CoupJoue + 1, CoupJoue < 8, % Effet de bord possible, on commence a 1 ou 2?
                                                                                         joueurOppose(JoueurJouant, AutreJoueur),
                                                                                         NewProfondeur is Profondeur - 1,
-                                                                                        jouerMove(JoueurJouant, TableauJeu, CoupJoue, PrevisionTableauJeu),
-                                                                                        write("New Profondeur : "), write(NewProfondeur), write(" Coup Joue : "), write(CoupJoue), write("\n"),
+                                                                                        jouerMove(JoueurJouant, TableauJeu, NewCoupJoue, PrevisionTableauJeu),
+                                                                                        write(" Profondeur : "), write(NewProfondeur), write(" Coup Joue : "), write(NewCoupJoue), write("\n"),
                                                                                         fonctionMiniMax(PrevisionTableauJeu, MMS, 0, NewProfondeur, AutreJoueur, JoueurMAX, ThisNodeValue), %Recursion en  profondeur
-                                                                                        write(" Profondeur : "), write(Profondeur), write(" New Coup Joue : "), write(NewCoupJoue), write("\n"),
+                                                                                        write(" Profondeur : "), write(NewProfondeur), write(" Coup Joue : "), write(NewCoupJoue), write("\n"),
                                                                                         fonctionMiniMax(TableauJeu, MMS, NewCoupJoue, Profondeur, JoueurJouant, JoueurMAX, RigthNodeValue), %Recursion en largeur
                                                                                         BestNodeValue is min(ThisNodeValue, RigthNodeValue),
                                                                                         write(" Best min node value for  node prof = "), write(Profondeur), write("   coup = "), write(CoupJoue), write(" is score = "), write(BestNodeValue), write("\n").
