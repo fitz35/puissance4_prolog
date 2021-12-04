@@ -41,7 +41,7 @@ fonctionMiniMax(TableauJeu, MMS,CoupJoue, 0         , _       , _        , BestN
                                                                                             write(" coupure Profondeur, leaf score =  "), write(NodeScore), write("\n").
 fonctionMiniMax(TableauJeu, MMS,CoupJoue, Profondeur, _       , _        , BestNodeValue):- NewCoupJoue is CoupJoue + 1, Profondeur\=0, nth1(NewCoupJoue, TableauJeu, Colonne), compter(Colonne,1), scoreCoup(TableauJeu,MMS,CoupJoue,NodeScore), BestNodeValue is NodeScore,  
                                                                                             write(" coupure No Child leaf score = "), write(NodeScore), write("\n").
-fonctionMiniMax(TableauJeu, MMS,6       , _         , _       , _        , BestNodeValue):- scoreCoup(TableauJeu,MMS,7,NodeScore), BestNodeValue is NodeScore, 
+fonctionMiniMax(TableauJeu, MMS,6       , _         , _       , _        , BestNodeValue):- scoreCoup(TableauJeu,MMS,7,NodeScore), BestNodeValue is NodeScore, %A changer, faut regarder les enfats
                                                                                             write(" coupure no right node \n").
 
 %PseudoCode : if maximizingPlayer then
@@ -50,7 +50,7 @@ fonctionMiniMax(TableauJeu, MMS,6       , _         , _       , _        , BestN
 %                 value := max(value, minimax(child, depth − 1, FALSE))
 %                 return value 
 fonctionMiniMax(TableauJeu, MMS, CoupJoue, Profondeur, JoueurMAX   , JoueurMAX, BestNodeValue):- Profondeur>0,
-                                                                                        NewCoupJoue is CoupJoue + 1, CoupJoue < 8, % Effet de bord possible, on commence a 1 ou 2?
+                                                                                        NewCoupJoue is CoupJoue + 1, CoupJoue < 8, % Effet de bord possible, on commence a 1 ou 2?, Changer newCoup joue < 8?
                                                                                         joueurOppose(JoueurMAX, AutreJoueur),
                                                                                         NewProfondeur is Profondeur - 1,
                                                                                         jouerMove(JoueurMAX, TableauJeu, NewCoupJoue, PrevisionTableauJeu),
