@@ -6,9 +6,8 @@ infiniteNeg(-10005).
 infinitePos(X,Rep):- Rep is X+10000.
 infiniteNeg(X,Rep):- Rep is -10000-X.
 
-%Boucle forEach allant de X a Y inclus
-boucleForEach(X,Y):- X>=1, X=<Y.
-boucleForEach(X,Y):- Z is X+1, Z=<Y, boucleForEach(Z, Y).
+%Evalue si le coup joue ramene a une configuration legale
+configurationLegale(TableauJeu, CoupJoue) :- nth1(CoupJoue, TableauJeu, Colonne), compter(Colonne,N), N>0.
 
 minmaxStatiqueProf(JoueurJouant,Grille,Grille1) :- MMS=[[3,4,5,5,4,3,-1],[4,6,8,8,6,4,-1],[5,8,11,11,8,5,-1],[7,10,13,13,10,7,-1],[5,8,11,11,8,5,-1],[4,6,8,8,6,4,-1],[3,4,5,5,4,3,-1]], heuristiqueMMSProf(Grille,_,MMS,Grille1,JoueurJouant, 1).
 
@@ -36,10 +35,25 @@ scoreCoup(G, MMS, J, Score) :- nth1(J,G,C), compter(C,N), nth1(J,MMS,Cbis), I is
 
 
 %Base cases
+%Coupure no child node
+fonctionMiniMax(TableauJeu, MMS,CoupJoue, Profondeur, JoueurJouant, JoueurMAX, BestNodeValue):- NewCoupJoue is CoupJoue + 1, NewCoupJoue < 7,
+                                                                                                not(configurationLegale(TableauJeu, NewCoupJoue)), write("invalid move "),
+                                                                                                write(" Profondeur : "), write(Profondeur), write(" Coup Joue : "), write(NewCoupJoue), write("\n"),
+                                                                                                fonctionMiniMax(TableauJeu, MMS, NewCoupJoue, Profondeur, JoueurJouant, JoueurMAX, RigthNodeValue), %Recursion en largeur
+                                                                                                BestNodeValue is RigthNodeValue,
+                                                                                                write(" Best max node value for  node prof = "), write(Profondeur), write("   coup = "), write(NewCoupJoue), write(" is score = "), write(BestNodeValue), write("\n").                                                                           
+%Coupure no child node and no right node in a max level
+fonctionMiniMax(TableauJeu, _,6 , Profondeur, JoueurMAX, JoueurMAX, BestNodeValue):- NewCoupJoue is 7, not(configurationLegale(TableauJeu, NewCoupJoue)),
+                                                                                            BestNodeValue is 0, write("invalid move and no right node "),
+                                                                                            write(" Best node value for  node prof = "), write(Profondeur), write("   coup = "), write(NewCoupJoue), write(" is score = "), write(BestNodeValue), write("\n").
+%Coupure no child node and no right node in a min level
+fonctionMiniMax(TableauJeu, _,6 , Profondeur, JoueurJouant, JoueurMAX, BestNodeValue):- JoueurJouant =\= JoueurMAX, NewCoupJoue is 7, not(configurationLegale(TableauJeu, NewCoupJoue)),
+                                                                                            BestNodeValue is 100, write("invalid move and no right node "),
+                                                                                            write(" Best node value for  node prof = "), write(Profondeur), write("   coup = "), write(NewCoupJoue), write(" is score = "), write(BestNodeValue), write("\n").
 
 %Coupure max profondeur in a max level
 fonctionMiniMax(TableauJeu, MMS, CoupJoue, 0          , JoueurMAX, JoueurMAX, BestNodeValue):- NewCoupJoue is CoupJoue + 1, NewCoupJoue < 7,
-                                                                                            affiche(TableauJeu,[],1),
+                                                                                            configurationLegale(TableauJeu, NewCoupJoue), affiche(TableauJeu,[],1),
                                                                                             scoreCoup(TableauJeu, MMS, NewCoupJoue, ThisNodeValue),
                                                                                             write("si on joue en "), write(NewCoupJoue), write(" on aura une configuration avec score: "), write(ThisNodeValue), write("\n"),
                                                                                             write(" Profondeur : "), write(0), write(" Coup Joue : "), write(NewCoupJoue), write("\n"),
@@ -49,7 +63,7 @@ fonctionMiniMax(TableauJeu, MMS, CoupJoue, 0          , JoueurMAX, JoueurMAX, Be
 %Coupure max profondeur in a min level
 fonctionMiniMax(TableauJeu, MMS, CoupJoue, 0          , JoueurJouant, JoueurMAX, BestNodeValue):- JoueurJouant =\= JoueurMAX,
                                                                                             NewCoupJoue is CoupJoue + 1, NewCoupJoue < 7,
-                                                                                            affiche(TableauJeu,[],1),
+                                                                                            configurationLegale(TableauJeu, NewCoupJoue), affiche(TableauJeu,[],1),
                                                                                             scoreCoup(TableauJeu, MMS, NewCoupJoue, ThisNodeValue),
                                                                                             write("si on joue en "), write(NewCoupJoue), write(" on aura une configuration avec score: "), write(ThisNodeValue), write("\n"),
                                                                                             write(" Profondeur : "), write(0), write(" Coup Joue : "), write(NewCoupJoue), write("\n"),
@@ -58,18 +72,16 @@ fonctionMiniMax(TableauJeu, MMS, CoupJoue, 0          , JoueurJouant, JoueurMAX,
                                                                                             write(" Best min node value for  node prof = "), write(0), write("   coup = "), write(NewCoupJoue), write(" is score = "), write(BestNodeValue), write("\n").
 
 %Coupure max profondeur in and no Right Node
-fonctionMiniMax(TableauJeu, MMS, 6 , 0          , _, _, BestNodeValue):-                    affiche(TableauJeu,[],1),
+fonctionMiniMax(TableauJeu, MMS, 6      , 0         , _           , _         , BestNodeValue):- affiche(TableauJeu,[],1), configurationLegale(TableauJeu, 7),
                                                                                             scoreCoup(TableauJeu, MMS, 7, ThisNodeValue),
                                                                                             write("si on joue en "), write(7), write(" on aura une configuration avec score: "), write(ThisNodeValue), write("\n"),
                                                                                             BestNodeValue is ThisNodeValue,
                                                                                             write(" Best min node value for  node prof = "), write(0), write("   coup = "), write(7), write(" is score = "), write(BestNodeValue), write("\n").
-%Coupure no child node                                                                                      
-fonctionMiniMax(TableauJeu, MMS,CoupJoue, Profondeur, _       , _        , BestNodeValue):- NewCoupJoue is CoupJoue + 1, Profondeur\=0, nth1(NewCoupJoue, TableauJeu, Colonne), compter(Colonne,1), scoreCoup(TableauJeu,MMS,CoupJoue,NodeScore), BestNodeValue is NodeScore,  
-                                                                                            write(" coupure No Child leaf score = "), write(NodeScore), write("\n").
+
 %Coupure no right node
-fonctionMiniMax(TableauJeu, MMS,6      , Profondeur, JoueurJouant, JoueurMAX, BestNodeValue):- Profondeur>0, NewCoupJoue is 7,
+fonctionMiniMax(TableauJeu, MMS, 6      , Profondeur, JoueurJouant, JoueurMAX, BestNodeValue):- Profondeur>0, NewCoupJoue is 7,
                                                                                             joueurOppose(JoueurJouant, AutreJoueur),
-                                                                                            NewProfondeur is Profondeur - 1,
+                                                                                            NewProfondeur is Profondeur - 1, configurationLegale(TableauJeu, NewCoupJoue),
                                                                                             jouerMove(JoueurMAX, TableauJeu, NewCoupJoue, PrevisionTableauJeu),
                                                                                             write(" Profondeur : "), write(NewProfondeur), write(" Coup Joue : "), write(7), write("\n"),
                                                                                             fonctionMiniMax(PrevisionTableauJeu, MMS, 0, NewProfondeur, AutreJoueur, JoueurMAX, ThisNodeValue), %Recursion en  profondeur
@@ -84,7 +96,7 @@ fonctionMiniMax(TableauJeu, MMS,6      , Profondeur, JoueurJouant, JoueurMAX, Be
 fonctionMiniMax(TableauJeu, MMS, CoupJoue, Profondeur, JoueurMAX   , JoueurMAX, BestNodeValue):- Profondeur>0,
                                                                                         NewCoupJoue is CoupJoue + 1, NewCoupJoue < 7, % Effet de bord possible, on commence a 1 ou 2?, Changer newCoup joue < 8?
                                                                                         joueurOppose(JoueurMAX, AutreJoueur),
-                                                                                        NewProfondeur is Profondeur - 1,
+                                                                                        NewProfondeur is Profondeur - 1, configurationLegale(TableauJeu, NewCoupJoue),
                                                                                         jouerMove(JoueurMAX, TableauJeu, NewCoupJoue, PrevisionTableauJeu),
                                                                                         write(" Profondeur : "), write(NewProfondeur), write(" Coup Joue : "), write(NewCoupJoue), write("\n"),
                                                                                         fonctionMiniMax(PrevisionTableauJeu, MMS, 0, NewProfondeur, AutreJoueur, JoueurMAX, ThisNodeValue), %Recursion en  profondeur
@@ -100,7 +112,7 @@ fonctionMiniMax(TableauJeu, MMS, CoupJoue, Profondeur, JoueurMAX   , JoueurMAX, 
 fonctionMiniMax(TableauJeu, MMS ,CoupJoue, Profondeur, JoueurJouant, JoueurMAX, BestNodeValue):- Profondeur>0, JoueurJouant =\= JoueurMAX,
                                                                                         NewCoupJoue is CoupJoue + 1, NewCoupJoue < 7, % Effet de bord possible, on commence a 1 ou 2?
                                                                                         joueurOppose(JoueurJouant, AutreJoueur),
-                                                                                        NewProfondeur is Profondeur - 1,
+                                                                                        NewProfondeur is Profondeur - 1, configurationLegale(TableauJeu, NewCoupJoue),
                                                                                         jouerMove(JoueurJouant, TableauJeu, NewCoupJoue, PrevisionTableauJeu),
                                                                                         write(" Profondeur : "), write(NewProfondeur), write(" Coup Joue : "), write(NewCoupJoue), write("\n"),
                                                                                         fonctionMiniMax(PrevisionTableauJeu, MMS, 0, NewProfondeur, AutreJoueur, JoueurMAX, ThisNodeValue), %Recursion en  profondeur
