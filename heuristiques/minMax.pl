@@ -46,6 +46,12 @@ calculCoup(G,J,C,SP,SF,Cpt) :- nth1(C,G,Col), compter(Col,Y), Y = 0, Cpt1 is Cpt
 
 % Pour une grille, renvoi le coup avec le meilleur score et son score
 % associ�
+
+%G grille
+%J joueur 
+%Cpt, Cp  compteur 
+%S score 
+
 coup(_,_,C,C,S,S,8).
 coup(G,J,CP,CF,SP,SF,Cpt) :-
     calculScore(G,J,Cpt,S),
@@ -135,7 +141,7 @@ scoreDiag2(G,J,X,Y,R) :- regardeDiag2Gauche(G,J,X,Y,0,R1), regardeDiag2Droite(G,
 % R�cup�re la case (Colonne,Ligne) de la Grille
 getCase(Grille,Colonne,Ligne,Retour) :- nth1(Colonne,Grille,C), nth1(Ligne,C,Retour).
 
-% Cr�ation d'un score en fonction du nombre de symbole align�s
+% Création d'un score en fonction du nombre de symbole align�s
 getScore(1,5).
 getScore(2,20).
 getScore(3,100).

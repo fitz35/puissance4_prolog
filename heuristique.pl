@@ -7,15 +7,18 @@
 % Antoine Mandin
 
 % Chargement des fichiers qui seront utilisés dans ce fichier
+:- consult(utils).
 :- consult(analyseGagnant).
 :- consult(gereTableau).
 :- consult(affichage).
+
 :- consult(heuristiques/joueur).
 :- consult(heuristiques/random).
 :- consult(heuristiques/offensive).
 :- consult(heuristiques/defensive).
 :- consult(heuristiques/anticipation).
 :- consult(heuristiques/minMaxStatique).
+:- consult(heuristiques/minMaxHeuristique).
 :- consult(heuristiques/minMax).
 :- consult(heuristiques/minMaxStatiqueProfondeur).
 
@@ -35,7 +38,7 @@ heuristique(G,1,_,Etat,2) :- gagner(2,G), afficherGagnant(2,Etat), retour(1,Etat
 heuristique(G,_,_,Etat,0) :- finis(G,Etat).
 
 % Si un joueur a une heuristique 0, j'appelle cette heuristique pour ce joueur
-heuristique(G,Joueur,[N1|N2],Etat,Res) :- nth1(Joueur,[N1|N2],NIV), NIV = 0, jouerJoueur(G, Joueur, N1, N2,Etat,Res).
+heuristique(G,Joueur,[N1|N2],Etat,Res) :- nth1(Joueur,[N1|N2],NIV), NIV = 0, window(G, Etat),  jouerJoueur(G, Joueur, N1, N2,Etat,Res).
 
 % Si un joueur a une heuristique supérieur à 1, j'appelle la stratégie 1
 heuristique(G,Joueur,[N1|N2], Etat,Joueur) :- nth1(Joueur,[N1|N2],NIV), NIV > 1, movePourGagner(Joueur, G, G1),
@@ -71,13 +74,16 @@ heuristique(G,Joueur,[N1|N2],Etat,Res) :- nth1(Joueur,[N1|N2],NIV), NIV = 6, min
     joueurOppose(Joueur, JoueurOp),
     heuristique(G1,JoueurOp, [N1|N2],Etat,Res).
 
-% Appel de l'heuristique MinMax avec fonction d'evalutation statique, profondeur implemente
-% Developpe par H4124
-heuristique(G,Joueur,[N1|N2],Etat,Res) :- nth1(Joueur,[N1|N2],NIV), NIV = 7, minmaxStatiqueProf(Joueur, G, G1),
-    ecrit(Joueur,Etat), ecrit(" joue MinMaxStatique avec profondeur",Etat), retour(1,Etat),
+
+% Appel de l'heuristique MinMaxDynamique
+heuristique(G,Joueur,[N1|N2],Etat,Res) :- nth1(Joueur,[N1|N2],NIV), NIV = 7, minMaxDynamique(G,Joueur,G1),
+    ecrit(Joueur,Etat), ecrit(" joue MinMaxDynamique",Etat), retour(1,Etat),
     affiche(G1,[],Etat),
     joueurOppose(Joueur, JoueurOp),
     heuristique(G1,JoueurOp, [N1|N2],Etat,Res).
+
+
+
 
 % Si un joueur a une heuristique Random, je l'appelle pour ce joueur
 % Ou si une heuristique supérieur n'a pas réussi, je l'appelle
@@ -86,10 +92,6 @@ heuristique(G,Joueur,[N1|N2],Etat,Res) :- nth1(Joueur,[N1|N2],NIV), NIV > 0, heu
     affiche(G1,[],Etat),
     joueurOppose(Joueur, JoueurOp),
     heuristique(G1,JoueurOp, [N1|N2],Etat,Res).
-
-
-
-
 
 
 

@@ -6,8 +6,6 @@
 % Mickael Ben Said
 % Antoine Mandin
 
-:- consult(utils).
-
 % * Retourne si le joueur J a gagne sur une colonne *
 gagnerColonne(J, [H|_]) :- sousliste([J,J,J,J], H).
 gagnerColonne(J, [_|T]) :- T \== [], gagnerColonne(J, T).
