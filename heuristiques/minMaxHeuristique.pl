@@ -68,22 +68,62 @@ augmenterLesCasesLigne(J,IndiceLigne, Cpt) :-
 
 %tableau(T,J). 
 %augmentCase(X,Y,3,T,newTab), %15
-augmenter1Diag(G,J,X,Y,R) :- R > 2, write(R). 
-augmenterDiag(X,Y,R).
+regarderLesDiag(G,J) :- joueurOppose(J,J2), regardeDiag1(G,J2), regardeDiag2(G,J2).
 
-regardeDiag1(G,J) :- scoreDiag1Custom(G,J,1,4,R1), %SI RX >2 augmenter de 3
-                  scoreDiag1Custom(G,J,1,5,R2),
-                  scoreDiag1Custom(G,J,1,6,R3),
-                  scoreDiag1Custom(G,J,1,7,R4),
-                  scoreDiag1Custom(G,J,2,7,R5),
-                  scoreDiag1Custom(G,J,2,8,R6).
+augementeScoreDiag1(X,Y,J) :- joueurOppose(J,J2), tableau(T,J2), V is 3,
+                                X2 is X+1, X3 is X+2, X4 is X+3, X5 is X+4, X6 is X+5,
+                                Y2 is Y-1, Y3 is Y-2, Y4 is Y-3, Y5 is Y-4, Y5 is Y-4, Y6 is Y-5,
+                                augmentCase(X,Y,V,T,T1),
+                                augmentCase(X2,Y2,V,T1,T2),
+                                augmentCase(X3,Y3,V,T2,T3),
+                                augmentCase(X4,Y4,V,T3,T4),
+                                augmentCase(X5,Y5,V,T4,T5),
+                                augmentCase(X6,Y6,V,T5,T6),
+                                asserta(tableau(T6,J)).
 
-regardeDiag2(G,J) :- scoreDiag2Custom(G,J,1,1,R1),
-                scoreDiag2Custom(G,J,1,2,R2),
-                scoreDiag2Custom(G,J,1,3,R3),
-                scoreDiag2Custom(G,J,1,4,R4),
-                scoreDiag2Custom(G,J,2,1,R5),
-                scoreDiag2Custom(G,J,3,1,R6).
+
+augementeScoreDiag2(X,Y,J) :- joueurOppose(J,J2), tableau(T,J2), V is 3,
+                                X2 is X+1, X3 is X+2, X4 is X+3, X5 is X+4, X6 is X+5,
+                                Y2 is Y+1, Y3 is Y+2, Y4 is Y+3, Y5 is Y+4, Y5 is Y+4, Y6 is Y+5,
+                                augmentCase(X,Y,V,T,T1),
+                                augmentCase(X2,Y2,V,T1,T2),
+                                augmentCase(X3,Y3,V,T2,T3),
+                                augmentCase(X4,Y4,V,T3,T4),
+                                augmentCase(X5,Y5,V,T4,T5),
+                                augmentCase(X6,Y6,V,T5,T6),
+                                asserta(tableau(T6,J)).
+
+augementDiag1(G,J,X,Y) :- scoreDiag1Custom(G,J,X,Y,R), R > 1, augementeScoreDiag1(X,Y,J).
+augementDiag1(G,J,X,Y) :- scoreDiag1Custom(G,J,X,Y,R), R<2.
+
+augementDiag2(G,J,X,Y) :- scoreDiag2Custom(G,J,X,Y,R), R > 1, augementeScoreDiag2(X,Y,J).
+augementDiag2(G,J,X,Y) :- scoreDiag2Custom(G,J,X,Y,R), R<2.
+
+
+regardeDiag1(G,J) :- augementDiag1(G,J,1,4), % diag \ 
+                    augementDiag1(G,J,1,5),
+                    augementDiag1(G,J,1,6),
+                    augementDiag1(G,J,1,7),
+                    augementDiag1(G,J,2,7),
+                    augementDiag1(G,J,3,7).
+
+regardeDiag2(G,J) :- augementDiag2(G,J,1,1), % diag / 
+                    augementDiag2(G,J,1,2),
+                    augementDiag2(G,J,1,3),
+                    augementDiag2(G,J,1,4),
+                    augementDiag2(G,J,2,1),
+                    augementDiag2(G,J,3,1).
+
+%R prend la valeur du nombre de jeton de J sur la diagonale \ 
+scoreDiag1Custom(G,J,X,Y,R) :- getCase(G,Y,X,J), regardeDiag1Gauche(G,J,X,Y,0,R1), regardeDiag1Droite(G,J,X,Y,0,R2),   R is R1+R2+1.
+scoreDiag1Custom(G,J,X,Y,R) :- regardeDiag1Gauche(G,J,X,Y,0,R1), regardeDiag1Droite(G,J,X,Y,0,R2),  R is R1+R2.
+
+%R prend la valeur du nombre de jeton de J sur la diagonale \
+scoreDiag2Custom(G,J,X,Y,R) :- getCase(G,Y,X,J), regardeDiag2Gauche(G,J,X,Y,0,R1), regardeDiag2Droite(G,J,X,Y,0,R2), R is R1+R2+1.
+scoreDiag2Custom(G,J,X,Y,R) :- regardeDiag2Gauche(G,J,X,Y,0,R1), regardeDiag2Droite(G,J,X,Y,0,R2),  R is R1+R2.
+
+
+%================ FIN DIAG ================
 
 
 augmenterLesCasesColonne(J,IndiceCol, Cpt) :- tableau(T,J),
@@ -91,17 +131,6 @@ augmenterLesCasesColonne(J,IndiceCol, Cpt) :- tableau(T,J),
                             Cpt1 is Cpt+1,
                             asserta(tableau(NewTab,J)),
                             augmenterLesCasesColonne(J,IndiceCol, Cpt1).
-
-
-
-%R prend la valeur du nombre de jeton de J sur la diagonale \ 
-scoreDiag1Custom(G,J,X,Y,R) :- getCase(G,Y,X,J), regardeDiag1Gauche(G,J,X,Y,0,R1), regardeDiag1Droite(G,J,X,Y,0,R2),   R is R1+R2+1.
-scoreDiag1Custom(G,J,X,Y,R) :- regardeDiag1Gauche(G,J,X,Y,0,R1), regardeDiag1Droite(G,J,X,Y,0,R2),  R is R1+R2, write("opp or empty").
-
-%R prend la valeur du nombre de jeton de J sur la diagonale \
-scoreDiag2Custom(G,J,X,Y,R) :- getCase(G,Y,X,J), regardeDiag2Gauche(G,J,X,Y,0,R1), regardeDiag2Droite(G,J,X,Y,0,R2), R is R1+R2+1.
-scoreDiag2Custom(G,J,X,Y,R) :- regardeDiag2Gauche(G,J,X,Y,0,R1), regardeDiag2Droite(G,J,X,Y,0,R2),  R is R1+R2, write("opp or empty").
-%================ FIN AJOUT ================
 
 % Trouve si 2 jetons max de la même personne aligné sur une colonne
 alignement2JetonsColonne(_,_,2).%2jetons alignés => stop 
@@ -157,6 +186,7 @@ mettreAJourTableau(Grille,J) :-
         )
     ),
     indiceColonnesA2Jetons(Grille,1,J), % augmente les colonnes ayant 2 jetons consécutifs
+    regarderLesDiag(Grille,J),%augmente les diagonnales ayant 2 jetons consécutifs
     indiceLignesA2Jetons(Grille,1,J). % augmente les lignes ayant 2 jetons consécutifs
 
 
@@ -214,6 +244,8 @@ replace(L, _, _, L).
 
 
 %[[1,2,1,0,0,0],[2,1,0,0,0,0],[1,2,1,0,0,0],[1,2,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[2,1,1,1,2,1]]
+%[[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0]]
+%[[1,1,1,1,1,1],[1,1,1,1,1,1],[1,1,1,1,1,1],[1,1,1,1,1,1],[1,1,1,1,1,1],[1,1,1,1,1,1],[1,1,1,1,1,1]]
 
 
 %Retourne la colonne ou il faut jouer 
@@ -269,5 +301,5 @@ dernier2(_,Z,N) :- N is Z.
 %getCase(Grille,Colonne,Ligne,Retour) :- nth1(Colonne,Grille,C), nth1(Ligne,C,Retour).
 
 %renvoi le joueur oppose
-%joueurOppose(1,2).
-%joueurOppose(2,1).
+joueurOppose(1,2).
+joueurOppose(2,1).
