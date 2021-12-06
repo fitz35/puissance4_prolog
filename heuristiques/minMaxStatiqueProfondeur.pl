@@ -7,8 +7,17 @@ infinitePos(X,Rep):- Rep is X+10000.
 infiniteNeg(X,Rep):- Rep is -10000-X.
 
 %Boucle forEach allant de X a Y inclus
-boucleForEach(X,Y):- X>=1, X=<Y.
-boucleForEach(X,Y):- Z is X+1, Z=<Y, boucleForEach(Z, Y).
+[library(lambda)].
+boucleForEach(X):- foreach(between(0,6,X),call([Y]>>(Z is Y+1),X)).
+
+% Compte le nombre N de de zero dans L avec count(L,N)
+compter([],0).
+compter([0|T],N) :- compter(T,N1), N is N1 + 1.
+compter([X|T],N) :- X \== 0, compter(T,N).
+
+%renvoi le joueur oppose
+joueurOppose(1,2).
+joueurOppose(2,1).
 
 minmaxStatiqueProf(JoueurJouant,Grille,Grille1) :- MMS=[[3,4,5,5,4,3,-1],[4,6,8,8,6,4,-1],[5,8,11,11,8,5,-1],[7,10,13,13,10,7,-1],[5,8,11,11,8,5,-1],[4,6,8,8,6,4,-1],[3,4,5,5,4,3,-1]], heuristiqueMMSProf(Grille,_,MMS,Grille1,JoueurJouant, 1).
 
@@ -24,7 +33,7 @@ heuristiqueMMSProf(G,L,_,G1,JoueurJouant, _) :- max_liste(L,X),nth1(I,L,X),jouer
 ceCoupNousFaitPerdre(JoueurJouant, Grille, Coup):- joueurOppose(JoueurJouant,JoueurOppose),jouerMove(JoueurJouant, Grille, Coup, G2),testMovePourGagner(JoueurOppose, G2,_).
 
 %Pour chaque coup, nous invoquons la procedure miniMax et nous mettons la valeur dans la liste
-invoquerMiniMax(TableauJeu, MMS, CoupJoue, Profondeur, JoueurJouant, ScoreList, NewScoreList) :- fonctionMiniMax(TableauJeu,MMS,CoupJoue, Profondeur, JoueurJouant, JoueurJouant, 0, NewScore), ajouterEnFin(NewScore, ScoreList, NewScoreList).
+invoquerMiniMax(TableauJeu, MMS, CoupJoue, Profondeur, JoueurJouant, ScoreList, NewScoreList) :- fonctionMiniMax(TableauJeu,MMS,CoupJoue, Profondeur, JoueurJouant, JoueurJouant, 0, NewScore), write("prof9999"), ajouterEnFin(NewScore, ScoreList, NewScoreList).
 
 % MMS est la grille d'evaluation, J le numero de la colonne jouee, G la grille du jeu,
 % Score valeur de la case dans le tableau MMS sur laquelle le joueur a joue
@@ -33,7 +42,7 @@ scoreCoup(G, MMS, J, Score) :- nth1(J,G,C), compter(C,N), nth1(J,MMS,Cbis), I is
 %Algo minMax 
 %PseudoCode : if depth = 0 or node is a terminal node then
 %               return the heuristic value of node
-fonctionMiniMax(TableauJeu,MMS,CoupJoue, 0, _, _, _, NewScore):- write("prof0"), scoreCoup(TableauJeu,MMS,CoupJoue,NewScore).
+fonctionMiniMax(TableauJeu,MMS,CoupJoue, 0, _, _, _, NewScore):- write(" coupure "), scoreCoup(TableauJeu,MMS,CoupJoue,NewScore).
 fonctionMiniMax(TableauJeu,MMS,CoupJoue, Profondeur, _, _, _, NewScore):- Profondeur\=0, nth1(CoupJoue, TableauJeu, Colonne), write("avant"), compter(Colonne,1), write("apres"), scoreCoup(TableauJeu,MMS,CoupJoue,NewScore).
 
 %PseudoCode : if maximizingPlayer then
@@ -42,14 +51,14 @@ fonctionMiniMax(TableauJeu,MMS,CoupJoue, Profondeur, _, _, _, NewScore):- Profon
 %                 value := max(value, minimax(child, depth − 1, FALSE))
 %                 return value 
     
-fonctionMiniMax(TableauJeu,MMS,CoupJoue, Profondeur, JoueurJouant,JoueurMAX, Score,NewScore):- JoueurJouant==JoueurMAX, write("max"), infiniteNeg(CoupJoue,NewScore), 
-                                                                                            boucleForEach(1,7),
-    																						joueurOppose(JoueurJouant, AutreJoueur),
+fonctionMiniMax(TableauJeu,MMS,CoupJoue, Profondeur, JoueurMAX,JoueurMAX, Score,NewScore):- Profondeur>0, write(" max"), infiniteNeg(CoupJoue,NewScore), 
+                                                                                            boucleForEach(X),
+    																						joueurOppose(JoueurMAX, AutreJoueur),
                                                                                             NewProfondeur is Profondeur - 1,
                                                                                             NewProfondeur >= 0,
                                                                                             write(NewProfondeur),
     																						fonctionMiniMax(TableauJeu,MMS,CoupJoue, NewProfondeur, AutreJoueur,JoueurMAX, NewScore, OtherScore),
-                                                                                            NewScore is max(Score, OtherScore),write(" tourSuivant").
+                                                                                            Sco is max(Score, OtherScore),write(" tourSuivant").
 
 
 
@@ -57,11 +66,11 @@ fonctionMiniMax(TableauJeu,MMS,CoupJoue, Profondeur, JoueurJouant,JoueurMAX, Sco
 %             for each child of node do
 %                   value := min(value, minimax(child, depth − 1, TRUE))
 %                   return value
-fonctionMiniMax(TableauJeu,MMS,CoupJoue, Profondeur, JoueurJouant,JoueurMAX, Score,NewScore):- JoueurJouant\=JoueurMAX, write("min"), infinitePos(CoupJoue,NewScore),
-                                                                                            boucleForEach(1,7),
+fonctionMiniMax(TableauJeu,MMS,CoupJoue, Profondeur, JoueurJouant,JoueurMAX, Score,NewScore):- Profondeur>0, JoueurJouant\=JoueurMAX, write("min"), infinitePos(CoupJoue,NewScore),
+                                                                                            boucleForEach(X),
     																						joueurOppose(JoueurJouant, AutreJoueur),
+                                                                                            write(" profMIN "),
                                                                                             NewProfondeur is Profondeur - 1,
                                                                                             NewProfondeur >= 0,
     																						fonctionMiniMax(TableauJeu,MMS,CoupJoue, NewProfondeur, AutreJoueur,JoueurMAX, Score, OtherScore),
-                                                                                            NewScore is min(Score, OtherScore).
-
+                                                                                            Sco is min(Score, OtherScore).
