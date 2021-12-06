@@ -1,3 +1,8 @@
+% t est la taille de la list L.
+tailleList([], 0).
+tailleList([_|Q], T) :- tailleList(Q, T2), T is T2 + 1.
+
+
 % DE :
 % Damien Carreau
 % Enzo Boscher
