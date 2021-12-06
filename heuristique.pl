@@ -20,6 +20,7 @@
 :- consult(heuristiques/minMaxStatique).
 :- consult(heuristiques/minMaxHeuristique).
 :- consult(heuristiques/minMax).
+:- consult(heuristiques/minMaxStatiqueProfondeur).
 
 
 % ==================================================
