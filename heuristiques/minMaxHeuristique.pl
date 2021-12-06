@@ -3,6 +3,8 @@
 %                 sinon si l'adversaire à un coup gagnant, bloque le,
 %                 sinon, en s'appuyant sur un tableau qui indique un score pour chaque coup, joue le coup avec le meilleur score
 
+:- consult(minMax).
+
 :- dynamic tableau/2.
 tableau([[3,4,5,5,4,3],[4,6,8,8,6,4],[5,8,11,11,8,5],[7,10,13,13,10,7],[5,8,11,11,8,5],[4,6,8,8,6,4],[3,4,5,5,4,3]],1).
 tableau([[3,4,5,5,4,3],[4,6,8,8,6,4],[5,8,11,11,8,5],[7,10,13,13,10,7],[5,8,11,11,8,5],[4,6,8,8,6,4],[3,4,5,5,4,3]],2).
@@ -49,6 +51,59 @@ augmenterLesCasesLigne(J,IndiceLigne, Cpt) :-
     asserta(tableau(NewTab,J)),
     augmenterLesCasesLigne(J,IndiceLigne, Cpt1).
 
+
+
+%================ AJOUT ================
+%trouve si une diagonnale \ a 2 jetons adverses alignés
+%alignement2JetonsdiagonnaleG(Grille,J,X,Y,R). %start 0
+%alignement2Jetonsdiagonnale(Grille,J,X,Cpt) :- regarderDiagonnale(Grille,J,X,Cpt).
+
+
+%retourne le score de la diag \ => fare la transfo score supp 10 => ajouter sur X 
+%scoreDiag1(Grille,J,X,Y,R). %score > 10 ajouter point diag gauche de X 
+%regarderDiagonnale(Grille,J,X,Cpt) :- nth1(X,Grille,Colonne nth1(X,Colonne,) 
+
+% Renvoi le nombre de symbole du joueur J sur la gauche de la diagonale
+% 1 de la case (X,Y)
+
+%ajouterPointDiagGauche(X,Y):- X1 is X+1, Y1 is Y-1.
+
+%tableau(T,J). 
+%augmentCase(X,Y,3,T,newTab), %15
+augmenter1Diag(G,J,X,Y,R) :- R > 2, write(R). 
+augmenterDiag(X,Y,R).
+
+regardeDiag1(G,J) :- scoreDiag1Custom(G,J,1,4,R1), %SI RX >2 augmenter de 3
+                  scoreDiag1Custom(G,J,1,5,R2),
+                  scoreDiag1Custom(G,J,1,6,R3),
+                  scoreDiag1Custom(G,J,1,7,R4),
+                  scoreDiag1Custom(G,J,2,7,R5),
+                  scoreDiag1Custom(G,J,2,8,R6).
+
+regardeDiag2(G,J) :- scoreDiag2Custom(G,J,1,1,R1),
+                scoreDiag2Custom(G,J,1,2,R2),
+                scoreDiag2Custom(G,J,1,3,R3),
+                scoreDiag2Custom(G,J,1,4,R4),
+                scoreDiag2Custom(G,J,2,1,R5),
+                scoreDiag2Custom(G,J,3,1,R6).
+
+
+augmenterLesCasesColonne(J,IndiceCol, Cpt) :- tableau(T,J),
+                            augmentCase(Cpt,IndiceCol,3,T,NewTab), 
+                            Cpt1 is Cpt+1,
+                            asserta(tableau(NewTab,J)),
+                            augmenterLesCasesColonne(J,IndiceCol, Cpt1).
+
+
+
+%R prend la valeur du nombre de jeton de J sur la diagonale \ 
+scoreDiag1Custom(G,J,X,Y,R) :- getCase(G,Y,X,J), regardeDiag1Gauche(G,J,X,Y,0,R1), regardeDiag1Droite(G,J,X,Y,0,R2),   R is R1+R2+1.
+scoreDiag1Custom(G,J,X,Y,R) :- regardeDiag1Gauche(G,J,X,Y,0,R1), regardeDiag1Droite(G,J,X,Y,0,R2),  R is R1+R2, write("opp or empty").
+
+%R prend la valeur du nombre de jeton de J sur la diagonale \
+scoreDiag2Custom(G,J,X,Y,R) :- getCase(G,Y,X,J), regardeDiag2Gauche(G,J,X,Y,0,R1), regardeDiag2Droite(G,J,X,Y,0,R2), R is R1+R2+1.
+scoreDiag2Custom(G,J,X,Y,R) :- regardeDiag2Gauche(G,J,X,Y,0,R1), regardeDiag2Droite(G,J,X,Y,0,R2),  R is R1+R2, write("opp or empty").
+%================ FIN AJOUT ================
 
 % Trouve si 2 jetons max de la même personne aligné sur une colonne
 alignement2JetonsColonne(_,_,2).%2jetons alignés => stop 
