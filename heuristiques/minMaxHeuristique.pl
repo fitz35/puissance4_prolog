@@ -3,7 +3,7 @@
 %                 sinon si l'adversaire à un coup gagnant, bloque le,
 %                 sinon, en s'appuyant sur un tableau qui indique un score pour chaque coup, joue le coup avec le meilleur score
 
-:- consult(minMax).
+%:- consult(minMax).
 
 :- dynamic tableau/2.
 tableau([[3,4,5,5,4,3],[4,6,8,8,6,4],[5,8,11,11,8,5],[7,10,13,13,10,7],[5,8,11,11,8,5],[4,6,8,8,6,4],[3,4,5,5,4,3]],1).
@@ -52,22 +52,7 @@ augmenterLesCasesLigne(J,IndiceLigne, Cpt) :-
 
 
 %================ AJOUT ================
-%trouve si une diagonnale \ a 2 jetons adverses alignés
-%alignement2JetonsdiagonnaleG(Grille,J,X,Y,R). %start 0
-%alignement2Jetonsdiagonnale(Grille,J,X,Cpt) :- regarderDiagonnale(Grille,J,X,Cpt).
 
-
-%retourne le score de la diag \ => fare la transfo score supp 10 => ajouter sur X 
-%scoreDiag1(Grille,J,X,Y,R). %score > 10 ajouter point diag gauche de X 
-%regarderDiagonnale(Grille,J,X,Cpt) :- nth1(X,Grille,Colonne nth1(X,Colonne,) 
-
-% Renvoi le nombre de symbole du joueur J sur la gauche de la diagonale
-% 1 de la case (X,Y)
-
-%ajouterPointDiagGauche(X,Y):- X1 is X+1, Y1 is Y-1.
-
-%tableau(T,J). 
-%augmentCase(X,Y,3,T,newTab), %15
 regarderLesDiag(G,J) :- joueurOppose(J,J2), regardeDiag1(G,J2), regardeDiag2(G,J2).
 
 augementeScoreDiag1(X,Y,J) :- joueurOppose(J,J2), tableau(T,J2), V is 3,
@@ -103,34 +88,26 @@ augementDiag2(G,J,X,Y) :- scoreDiag2Custom(G,J,X,Y,R), R<2.
 regardeDiag1(G,J) :- augementDiag1(G,J,1,4), % diag \ 
                     augementDiag1(G,J,1,5),
                     augementDiag1(G,J,1,6),
-                    augementDiag1(G,J,1,7),
-                    augementDiag1(G,J,2,7),
-                    augementDiag1(G,J,3,7).
+                    augementDiag1(G,J,1,7).
 
 regardeDiag2(G,J) :- augementDiag2(G,J,1,1), % diag / 
                     augementDiag2(G,J,1,2),
                     augementDiag2(G,J,1,3),
-                    augementDiag2(G,J,1,4),
-                    augementDiag2(G,J,2,1),
-                    augementDiag2(G,J,3,1).
+                    augementDiag2(G,J,1,4).
 
 %R prend la valeur du nombre de jeton de J sur la diagonale \ 
+
+scoreDiag1Custom(_,_,X,Y,_) :- (X > 6 ; X < 1 ; Y < 1 ; Y > 7). 
 scoreDiag1Custom(G,J,X,Y,R) :- getCase(G,Y,X,J), regardeDiag1Gauche(G,J,X,Y,0,R1), regardeDiag1Droite(G,J,X,Y,0,R2),   R is R1+R2+1.
 scoreDiag1Custom(G,J,X,Y,R) :- regardeDiag1Gauche(G,J,X,Y,0,R1), regardeDiag1Droite(G,J,X,Y,0,R2),  R is R1+R2.
 
 %R prend la valeur du nombre de jeton de J sur la diagonale \
+scoreDiag2Custom(_,_,X,Y,_) :- (X > 6 ; X < 1 ; Y < 1 ; Y > 7). 
 scoreDiag2Custom(G,J,X,Y,R) :- getCase(G,Y,X,J), regardeDiag2Gauche(G,J,X,Y,0,R1), regardeDiag2Droite(G,J,X,Y,0,R2), R is R1+R2+1.
 scoreDiag2Custom(G,J,X,Y,R) :- regardeDiag2Gauche(G,J,X,Y,0,R1), regardeDiag2Droite(G,J,X,Y,0,R2),  R is R1+R2.
 
 
 %================ FIN DIAG ================
-
-
-augmenterLesCasesColonne(J,IndiceCol, Cpt) :- tableau(T,J),
-                            augmentCase(Cpt,IndiceCol,3,T,NewTab), 
-                            Cpt1 is Cpt+1,
-                            asserta(tableau(NewTab,J)),
-                            augmenterLesCasesColonne(J,IndiceCol, Cpt1).
 
 % Trouve si 2 jetons max de la même personne aligné sur une colonne
 alignement2JetonsColonne(_,_,2).%2jetons alignés => stop 
@@ -167,7 +144,11 @@ augmenterLesCasesColonne(J,IndiceCol, Cpt) :- tableau(T,J),
                             asserta(tableau(NewTab,J)),
                             augmenterLesCasesColonne(J,IndiceCol, Cpt1).
 
-
+augmenterLesCasesColonne(J,IndiceCol, Cpt) :- tableau(T,J),
+                        augmentCase(Cpt,IndiceCol,3,T,NewTab), 
+                        Cpt1 is Cpt+1,
+                        asserta(tableau(NewTab,J)),
+                        augmenterLesCasesColonne(J,IndiceCol, Cpt1).
 
 mettreAJourTableau(Grille,J) :-
     length(Grille, TailleY),% recupere la taille X
@@ -244,7 +225,7 @@ replace(L, _, _, L).
 
 
 %[[1,2,1,0,0,0],[2,1,0,0,0,0],[1,2,1,0,0,0],[1,2,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[2,1,1,1,2,1]]
-%[[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0]]
+%[[0,0,0,1,0,0],[0,0,1,0,0,0],[0,1,0,0,0,0],[1,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0]]
 %[[1,1,1,1,1,1],[1,1,1,1,1,1],[1,1,1,1,1,1],[1,1,1,1,1,1],[1,1,1,1,1,1],[1,1,1,1,1,1],[1,1,1,1,1,1]]
 
 
@@ -301,5 +282,5 @@ dernier2(_,Z,N) :- N is Z.
 %getCase(Grille,Colonne,Ligne,Retour) :- nth1(Colonne,Grille,C), nth1(Ligne,C,Retour).
 
 %renvoi le joueur oppose
-joueurOppose(1,2).
-joueurOppose(2,1).
+%joueurOppose(1,2).
+%joueurOppose(2,1).
