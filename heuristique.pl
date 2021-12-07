@@ -83,10 +83,18 @@ heuristique(G,Joueur,[N1|N2],Etat,Res) :- nth1(Joueur,[N1|N2],NIV), NIV = 7, min
     joueurOppose(Joueur, JoueurOp),
     heuristique(G1,JoueurOp, [N1|N2],Etat,Res).
 
-% Appel de l'heuristique MinMax avec fonction d'evalutation statique, profondeur implemente avec score performant
+% Appel de l'heuristique MinMax avec fonction d'evalutation statique pour un coup, profondeur implemente avec score performant
 % Developpe par H4124
-heuristique(G,Joueur,[N1|N2],Etat,Res) :- nth1(Joueur,[N1|N2],NIV), NIV = 8, minmaxStatiqueProfPlus(Joueur, G, G1),
-    ecrit(Joueur,Etat), ecrit(" joue MinMaxStatique avec profondeur et score",Etat), retour(1,Etat),
+heuristique(G,Joueur,[N1|N2],Etat,Res) :- nth1(Joueur,[N1|N2],NIV), NIV = 8, minmaxStatiqueProf(Joueur, G, G1),
+    ecrit(Joueur,Etat), ecrit(" joue MinMaxStatique avec profondeur et score coup",Etat), retour(1,Etat),
+    affiche(G1,[],Etat),
+    joueurOppose(Joueur, JoueurOp),
+    heuristique(G1,JoueurOp, [N1|N2],Etat,Res).
+
+% Appel de l'heuristique MinMax avec fonction d'evalutation statique pour la configuration, profondeur implemente avec score performant
+% Developpe par H4124
+heuristique(G,Joueur,[N1|N2],Etat,Res) :- nth1(Joueur,[N1|N2],NIV), NIV = 9, minmaxStatiqueProfPlus(Joueur, G, G1),
+    ecrit(Joueur,Etat), ecrit(" joue MinMaxStatique avec profondeur et score configuration",Etat), retour(1,Etat),
     affiche(G1,[],Etat),
     joueurOppose(Joueur, JoueurOp),
     heuristique(G1,JoueurOp, [N1|N2],Etat,Res).

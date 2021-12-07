@@ -9,7 +9,7 @@ infiniteNeg(X,Rep):- Rep is -10000-X.
 %Evalue si le coup joue ramene a une configuration legale
 configurationLegale(TableauJeu, CoupJoue) :- nth1(CoupJoue, TableauJeu, Colonne), compter(Colonne,N), N>0.
 
-minmaxStatiqueProfPlus(JoueurJouant,Grille,Grille1) :- MMS=[[3,4,5,5,4,3,-1],[4,6,8,8,6,4,-1],[5,8,11,11,8,5,-1],[7,10,13,13,10,7,-1],[5,8,11,11,8,5,-1],[4,6,8,8,6,4,-1],[3,4,5,5,4,3,-1]], heuristiqueMMSProf(Grille,_,MMS,Grille1,JoueurJouant, 2).
+minmaxStatiqueProfPlus(JoueurJouant,Grille,Grille1) :- MMS=[[3,4,5,5,4,3,-1],[4,6,8,8,6,4,-1],[5,8,11,11,8,5,-1],[7,10,13,13,10,7,-1],[5,8,11,11,8,5,-1],[4,6,8,8,6,4,-1],[3,4,5,5,4,3,-1]], heuristiqueMMSProf(Grille,_,MMS,Grille1,JoueurJouant, 1).
 
 %G la grille du jeu, L la ligne MinMax jouable, MMS le tableau MinMaxStatique
 heuristiqueMMSProf(G,L,MMS,G1,JoueurJouant, Profondeur) :- length(L,T), T < 7,J is T+1, %Trouve l'indice de la colone sur laquelle on travaille, on commence a 0 ou 1? on s'arrete a 6 ou 7?
