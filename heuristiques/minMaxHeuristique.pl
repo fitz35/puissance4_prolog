@@ -3,6 +3,16 @@
 %                 sinon si l'adversaire à un coup gagnant, bloque le,
 %                 sinon, en s'appuyant sur un tableau qui indique un score pour chaque coup, joue le coup avec le meilleur score
 
+% DE :
+% ALAMI Meryem
+%ALGOURDIN Benoit 
+%LAHOCHE Clément
+%de LAMBERTYE Grégoire 
+%M’BARECK Aichetou
+%MDARHRI Taha
+%RAMKARAN Tushita
+%VELARDE Ithan
+
 %:- consult(minMax).
 
 :- dynamic tableau/2.
